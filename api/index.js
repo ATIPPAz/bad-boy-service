@@ -16,7 +16,7 @@ app.get('/sse', (req, res) => {
   const interval = setInterval(() => {
     counter++;
     res.write(`data: ${counter}\n\n`);
-  }, 10000);
+  }, 1000);
 
   // จัดการการยุติการเชื่อมต่อของ client
   req.on('close', () => {

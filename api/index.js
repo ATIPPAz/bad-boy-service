@@ -25,6 +25,10 @@ app.get('/sse', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.json({welcome:'to my api'})
+});
+
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });

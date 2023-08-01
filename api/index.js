@@ -16,10 +16,11 @@ app.get('/sse', (req, res) => {
   const interval = setInterval(() => {
     counter++;
     res.write(`data: ${counter}\n\n`);
-  }, 1000);
+  }, 10000);
 
   // จัดการการยุติการเชื่อมต่อของ client
   req.on('close', () => {
+    console.log('close');
     clearInterval(interval);
     res.end();
   });
@@ -29,7 +30,7 @@ app.get('/', (req, res) => {
   res.json({welcome:'to my api'})
 });
 
-app.listen(3000, () => {
+app.listen(3001, () => {
   console.log('Server is running on port 3000');
 });
 

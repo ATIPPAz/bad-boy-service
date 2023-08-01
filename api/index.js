@@ -15,13 +15,15 @@ app.get('/sse', (req, res) => {
 
   const interval = setInterval(() => {
     counter++;
+    console.log('test'+counter);
     res.write(`data: ${counter}\n\n`);
-  }, 100);
+  }, 4000);
 
   // จัดการการยุติการเชื่อมต่อของ client
   req.on('close', () => {
     console.log('close');
     clearInterval(interval);
+    counter = 0
     res.end();
   });
 });

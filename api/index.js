@@ -2,30 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 app.use(cors());
-// ตั้งค่า Express application ที่ใช้งาน SSE ได้ที่นี่
 
+app.get('/pollingGetData', (req, res) => {
+  const i = Math.floor(Math.random() * 2)
+  let response = ''
+  if(i==0){
+    response = {event:'score',data:{date:new Date().toLocaleString(),score:`${Math.floor(Math.random() * 21)+0} vs ${Math.floor(Math.random() * 21)+0}`}}
+  }
+  if(i==1){
 
-// app.js
-app.get('/sse', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-
-  let counter = 0;
-
-  const interval = setInterval(() => {
-    counter++;
-    console.log('test'+counter);
-    res.write(`data: ${counter}\n\n`);
-  }, 4000);
-
-  // จัดการการยุติการเชื่อมต่อของ client
-  req.on('close', () => {
-    console.log('close');
-    clearInterval(interval);
-    counter = 0
-    res.end();
-  });
+    response = {event:'roomCourt',data:{date:new Date().toLocaleString(),court:`court${Math.floor(Math.random() * 2)+1} , court${Math.floor(Math.random() * 9)+1}`}}
+  }
+  if(i==2){
+    response = {event:'nextTeam',data:{date:new Date().toLocaleString(),team:`team${Math.floor(Math.random() * 2)+1} , team${Math.floor(Math.random() * 10)+0}`}}
+  }
+  res.json(response)
 });
 
 app.get('/', (req, res) => {

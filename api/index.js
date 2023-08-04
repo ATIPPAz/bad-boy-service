@@ -50,6 +50,10 @@ app.get('/room/:roomId',(req,res)=>{
   res.json(roomData.find(e=>e.id===req.params.roomId))
 })
 
+app.delete('/room',(req,res)=>{
+  roomData.splice(0,roomData.length)
+  res.json(200)
+})
 
 app.get('/', (req, res) => {
   res.json({welcome:'to my api'})

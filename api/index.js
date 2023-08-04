@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json())
 const roomData = []
-
 function makeid(length) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

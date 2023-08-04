@@ -105,6 +105,18 @@ app.delete('/room',async(req,res)=>{
   }
 })
 
+app.get('/deleteEmergency',async(req,res)=>{
+  try{
+    roomData.splice(0,roomData.length)
+    await Court.deleteMany({id:{$ne:''}})
+    res.json(200)
+  }
+  catch(e){
+    console.log(e);
+    res.json(500)
+  }
+})
+
 app.get('/', (req, res) => {
   res.json({welcome:'to my api'})
 });

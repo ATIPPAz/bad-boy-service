@@ -23,7 +23,6 @@ const Court = mongoose.model('Court',courtSchma);
 const app = express();
 app.use(cors());
 app.use(bodyParser.json())
-const roomData = []
 function makeid(length) {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -95,7 +94,6 @@ app.get('/room/:roomId',async(req,res)=>{
 
 app.delete('/room',async(req,res)=>{
   try{
-    roomData.splice(0,roomData.length)
     await Court.deleteMany({id:{$ne:''}})
     res.json(200)
   }
@@ -107,7 +105,6 @@ app.delete('/room',async(req,res)=>{
 
 app.get('/deleteEmergency',async(req,res)=>{
   try{
-    roomData.splice(0,roomData.length)
     await Court.deleteMany({id:{$ne:''}})
     res.json(200)
   }

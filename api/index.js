@@ -13,7 +13,6 @@ const courtSchma = new Schema({
     roomName:String,
     allTeam: [{member: [String], order: Number}],
     courtNumber: Number,
-    roomName: String,
     teamLimit: Number,
     winScore:Number,
     winStreak:Number

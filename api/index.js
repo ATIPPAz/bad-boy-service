@@ -41,7 +41,7 @@ app.post('/room',(req,res)=>{
   }
   const id = uuidv4()
   roomData.push({id,data:req.body})
-  res.json(id)
+  res.json({id,roomData})
 })
 app.get('/room',(req,res)=>{
   res.json( roomData)

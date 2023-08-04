@@ -97,7 +97,7 @@ app.get('/room/:roomId',async(req,res)=>{
 app.delete('/room',async(req,res)=>{
   try{
     roomData.splice(0,roomData.length)
-    await Court.DeleteMany({id:{$ne:''}})
+    await Court.deleteMany({id:{$ne:''}})
     res.json(200)
   }
   catch(e){

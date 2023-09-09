@@ -53,13 +53,18 @@ app.get('/pollingGetData', (req, res) => {
 
 app.post('/room', async(req,res)=>{
   if(req.body.roomName.trim() === ""){
-    const now = new Date()
-    const day = String(now.getDate()).padStart(2, '0')
-    const month = String(now.getMonth() + 1).padStart(2, '0')
-    const year = now.getFullYear()
-    const hours = String(now.getHours()).padStart(2, '0')
-    const minutes = String(now.getMinutes()).padStart(2, '0')
-    req.body.roomName = `${day}/${month}/${year} ${hours}:${minutes}`
+    const now = new Date();
+    const options = {
+      timeZone: 'Asia/Bangkok',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    };
+    const formattedDate = now.toLocaleString('th-TH', options);
+    req.body.roomName = `วันที่ ${formattedDate}`
   }
 const roomData = {roomData:req.body}
 try{

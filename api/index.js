@@ -187,6 +187,9 @@ app.post('/team', async (req, res) => {
           const randomDecimal = Math.random()
           const indexPair = Math.floor(randomDecimal * (canPairMember.length))
           const newPairMember = canPairMember[indexPair>canPairMember.length?indexPair-1:indexPair]
+if(memberHasPaired.some(s=>s==newPairMember)){
+
+}
           // if(newPairMember == undefined){
           //   console.log(indexPair);
           //   console.log(canPairMember);

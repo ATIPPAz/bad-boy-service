@@ -175,21 +175,28 @@ app.post('/team', async (req, res) => {
       teamPaired = []
       const oldTeams = oldteam.map(x => x.allTeam.map(m => m.member)).flatMap(x => x)
       const hasPair = []
-      members.forEach(x=>{
+      members.sort((a,b)=>{
+        const memberHasPairedA = oldTeams.filter(y=>y.some(s=>s===a)).flatMap(f=>f).filter(f=>f!=a)
+        const memberHasPairedB = oldTeams.filter(y=>y.some(s=>s===b)).flatMap(f=>f).filter(f=>f!=b)
+        return memberHasPairedB.length - memberHasPairedA.length 
+      }).forEach(x=>{
         if(!hasPair.some(h=>h==x)){
           const memberHasPaired = oldTeams.filter(y=>y.some(s=>s===x)).flatMap(f=>f).filter(f=>f!=x)
           const canPairMember = members.filter(f=>!memberHasPaired.some(s=>s==f) && f!=x && !hasPair.some(s=>s==f))
-          if(canPairMember.length == 0){
-            console.log(members)
-            console.log(memberHasPaired)
-            console.log(hasPair)
-          }
           const randomDecimal = Math.random()
           const indexPair = Math.floor(randomDecimal * (canPairMember.length))
           const newPairMember = canPairMember[indexPair>canPairMember.length?indexPair-1:indexPair]
-if(memberHasPaired.some(s=>s==newPairMember)){
+          console.log(x);
+          console.log(memberHasPaired);
+          console.log(canPairMember);
+          console.log(newPairMember);
 
-}
+          if(memberHasPaired.some(s=>s==newPairMember)){
+            console.log(x);
+            console.log(newPairMember);
+            console.log(canPairMember);
+            console.log(memberHasPaired);
+          } 
           // if(newPairMember == undefined){
           //   console.log(indexPair);
           //   console.log(canPairMember);
@@ -208,7 +215,6 @@ if(memberHasPaired.some(s=>s==newPairMember)){
     req.body.teamLock.forEach(x=>{
       teamPaired.push(x)
     })
-    console.log(teamPaired);
     const teamShuffered = shufferMember(teamPaired).map((x,index)=>{
       return { order: index+1, member: x }
     })

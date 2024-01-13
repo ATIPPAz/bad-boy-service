@@ -61,7 +61,40 @@ function shufferMember(member) {
   }
   return member
 }
-
+function findOldMember(e, _histories) {
+  const oldMember = []
+  const histories = JSON.parse(JSON.stringify(_histories))
+  histories.forEach(h => {
+    const filter = (h.filter(x => x.some(s => s == e)))
+    if (filter.length <= 0) {
+      return
+    }
+    const paired = filter.flatMap(x => x).filter(x => x != e)
+    if (paired.length >= 1) {
+      oldMember.push(paired)
+    }
+  })
+  return oldMember
+}
+function randomTeam(members,history) {
+  const hasPaired = []
+  const team = []
+  members.forEach(e => {
+    if (hasPaired.some(s => s == e)) {
+      return
+    }
+    const oldMember = findOldMember(e, history)
+    const canpair = members.filter(x => !oldMember.some(s => s == x) && x != e).filter(f => !hasPaired.some(s => s == f))
+    const temp = [e]
+    if (canpair.length > 0) {
+      const index = Math.floor(Math.random() * canpair.length)
+      temp.push(canpair[index])
+    }
+    hasPaired.push(...temp)
+    team.push(temp)
+  })
+  return team
+}
 app.get('/getRoomId', async (req, res) => {
   try {
     const result = await RoomDB.find()
@@ -173,36 +206,26 @@ app.post('/team', async (req, res) => {
     let teamPaired = members
     if (oldteam != null) {
       teamPaired = []
-      const oldTeams = oldteam.map(x => x.allTeam.map(m => m.member)).flatMap(x => x)
-      const hasPair = []
-      members.sort((a,b)=>{
-        const memberHasPairedA = oldTeams.filter(y=>y.some(s=>s===a)).flatMap(f=>f).filter(f=>f!=a)
-        const memberHasPairedB = oldTeams.filter(y=>y.some(s=>s===b)).flatMap(f=>f).filter(f=>f!=b)
-        return memberHasPairedB.length - memberHasPairedA.length 
-      }).forEach(x=>{
-        if(!hasPair.some(h=>h==x)){
-          const memberHasPaired = oldTeams.filter(y=>y.some(s=>s===x)).flatMap(f=>f).filter(f=>f!=x)
-          const canPairMember = members.filter(f=>!memberHasPaired.some(s=>s==f) && f!=x && !hasPair.some(s=>s==f))
-          const randomDecimal = Math.random()
-          const indexPair = Math.floor(randomDecimal * (canPairMember.length))
-          const newPairMember = canPairMember[indexPair>canPairMember.length?indexPair-1:indexPair]
-          const memberPaired = [x]
-          if(newPairMember!= undefined){
-            memberPaired.push(newPairMember)
-            hasPair.push(newPairMember)
-          }
-          teamPaired.push(memberPaired)
-          hasPair.push(x)
-        }
-      })
-    }
-    req.body.teamLock.forEach(x=>{
+      const oldTeams = oldteam.map(x => x.allTeam.map(m => m.member))
+
+      console.log(oldTeams);
+      const _member = JSON.parse(JSON.stringify(members))
+  const memberSort = _member.sort((a,b)=>{
+        const memberHasPairedA = findOldMember(a,oldTeams)
+        const memberHasPairedB = findOldMember(b,oldTeams)
+        const compare = memberHasPairedB.length - memberHasPairedA.length 
+        return compare >= 1 ? 1 :  compare < 0 ? -1: 0
+  })
+  teamPaired = randomTeam(memberSort,oldTeams)
+}
+    
+    req.body.teamLock.forEach(x => {
       teamPaired.push(x)
     })
-    const teamShuffered = shufferMember(teamPaired).map((x,index)=>{
-      return { order: index+1, member: x }
+    const teamShuffered = shufferMember(teamPaired).map((x, index) => {
+      return { order: index + 1, member: x }
     })
-   
+
     if (req.body.setName.trim() === "") {
       const now = new Date()
       const options = {
@@ -237,13 +260,13 @@ app.post('/team', async (req, res) => {
   }
   // member.value = shufferMember(members)
 })
-app.get('/deleteTeam/:roomId',async(req,res)=>{
-    try{
-    await SetDB.deleteMany({roomId:req.params.roomId})
+app.get('/deleteTeam/:roomId', async (req, res) => {
+  try {
+    await SetDB.deleteMany({ roomId: req.params.roomId })
     res.json(200)
   }
-  catch(e){
-    console.log(e);
+  catch (e) {
+    console.log(e)
     res.json(500)
   }
 })

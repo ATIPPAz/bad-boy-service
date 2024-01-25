@@ -105,12 +105,20 @@ function main() {
   const startTime = new Date()
   const members = []
   const teamLock = []
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 10; i++) {
     members.push(`${i}`)
   }
   members.push(...teamLock)
   console.log(members)
-  console.log(mapTeam(members, createPlayerPair(members)))
+  const team = mapTeam(members, createPlayerPair(members))
+  // console.log(team)
   console.log(Math.round((new Date() - startTime) / 1000) + " seconds in " + members.length + "s")
+  const result = []
+  // console.log(team);
+  for (let index = 0; index < team.length+1; index++) {
+    const data = team.map(x=>x.find(f=>f.some(s=>s==index)))
+    console.log(data);
+    // x.filter(p=>p.some(g=>g==index))
+  }
 }
 main()

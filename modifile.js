@@ -50,10 +50,9 @@ function mapTeam(members, pairedMember) {
   let indexParent = 0
   let error = false
   let hasAdded = []
+  const maxteam = Math.ceil(members.length / 2)
   for (let i = 0; i < members.length - 1; i++) {
-    const header = pairedMember.filter(x => x[0] === members[0] && !teams.some(s => s[0] == x))
-    const compare = [header[0]]
-    const maxteam = Math.ceil(members.length / 2)
+    const compare = [pairedMember.filter(x => x[0] === members[0] && !teams.some(s => s[0] == x))[0]]
     if (error) { indexParent++ }
     let indexBody = indexParent
     error = false
@@ -61,8 +60,7 @@ function mapTeam(members, pairedMember) {
     let isReturn = false
     for (let j = 0; j < maxteam - 1;) {
       process.stdout.write(`\rcouple ${i} is procressing... ${((j / maxteam) * 100).toFixed(2)}%`)
-      const _pairedMember = pairedMember.filter(x => !hasAdded.some(y => y == x))
-      const body = _pairedMember.filter(f => !f.some(v => compare.some(g => g.some(h => h === v))))
+      const body = pairedMember.filter(x => !hasAdded.some(y => y == x)).filter(f => !f.some(v => compare.some(g => g.some(h => h === v))))
 
       if (body.length === 0) {
         compare.pop()
@@ -88,8 +86,7 @@ function mapTeam(members, pairedMember) {
       }
     }
     if (error) {
-      const comparer = (compare.length >= 0 ? compare.slice(1) : compare)
-      hasAdded = hasAdded.filter(x => comparer.some(c => c === x))
+      hasAdded = hasAdded.filter(x => (compare.length >= 0 ? compare.slice(1) : compare).some(c => c === x))
     }
     else {
       error = false
@@ -108,7 +105,7 @@ function main() {
   const startTime = new Date()
   const members = []
   const teamLock = []
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 100; i++) {
     members.push(`${i}`)
   }
   members.push(...teamLock)
@@ -117,6 +114,3 @@ function main() {
   console.log(Math.round((new Date() - startTime) / 1000) + " seconds in " + members.length + "s")
 }
 main()
-
-
-// เรียกใช้ฟังก์ชันเพื่อแสดงผลการประมวลผล

@@ -260,7 +260,17 @@ app.post('/team', async (req, res) => {
   }
   // member.value = shufferMember(members)
 })
-app.get('/deleteTeam/:roomId', async (req, res) => {
+app.get('/deleteTeam/:teamId', async (req, res) => {
+  try {
+    await SetDB.deleteOne({ _id: req.params.teamId })
+    res.json(200)
+  }
+  catch (e) {
+    console.log(e)
+    res.json(500)
+  }
+})
+app.get('/deleteRoom/:roomId', async (req, res) => {
   try {
     await SetDB.deleteMany({ roomId: req.params.roomId })
     res.json(200)

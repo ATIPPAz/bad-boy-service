@@ -53,6 +53,7 @@ function mapTeam(members, pairedMember) {
   const maxteam = Math.ceil(members.length / 2)
   for (let i = 0; i < members.length - 1; i++) {
     const compare = [pairedMember.filter(x => x[0] === members[0] && !teams.some(s => s[0] == x))[0]]
+    let deleteTeam = []
     if (error) { indexParent++ }
     let indexBody = indexParent
     error = false
@@ -75,7 +76,7 @@ function mapTeam(members, pairedMember) {
           j = maxteam
           error = true
           i -= 2
-          teams.pop()
+          deleteTeam = teams.pop()
         }
         else {
           compare.push(body[index])
@@ -86,12 +87,16 @@ function mapTeam(members, pairedMember) {
       }
     }
     if (error) {
-      hasAdded = hasAdded.filter(x => (compare.length >= 0 ? compare.slice(1) : compare).some(c => c === x))
+      // hasAdded = hasAdded.filter(x => !deleteTeam.map(x=>x.join(',')).some(s=>s==x.join(',')))
+      hasAdded = []
+      teams.forEach(x=>{
+        hasAdded.push(...x)
+      })
     }
     else {
+      hasAdded.push(...compare)
       error = false
       indexChild = 0
-      hasAdded.push(...compare)
       indexBody = 0
       indexParent = 0
       teams.push([...compare])
@@ -109,8 +114,13 @@ function main() {
     members.push(`${i}`)
   }
   members.push(...teamLock)
-  console.log(members)
-  const team = mapTeam(members, createPlayerPair(members))
+  // console.log(members)
+  const pair = createPlayerPair(members)
+  console.log(pair)
+  for (let index = 0; index < members.length; index++) {
+    while()
+  }
+  const team = mapTeam(members, pair)
   // console.log(team)
   console.log(Math.round((new Date() - startTime) / 1000) + " seconds in " + members.length + "s")
   const result = []

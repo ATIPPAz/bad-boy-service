@@ -1,134 +1,108 @@
-function createPlayerPair(members) {
-  const pair = []
-  members.forEach((x, indexX) => {
-    pair.push([])
-    members.forEach((y, indexY) => {
-      const array = []
-      array.push(x)
-      if (indexY != indexX) {
-        array.push(y)
-      }
-      if (members.length % 2 != 0 || array.length == 2) pair[indexX].push(array)
-    })
-  })
-  console.log('create paired')
-  const team = []
-  let indexSelected = members.length
-  pair.forEach(x => {
-    const _team = []
-    for (var i = 0; members.length - i > Math.floor(pair.length / 2); i++) {
-      // console.log(indexSelected,i,indexSelected-1-i)
-      _team.push(pair[i][indexSelected - 1 - i])
-    }
-    indexSelected--
-    if (indexSelected == Math.floor(members.length / 2)) indexSelected = members.length
-    team.push(_team)
-  })
-  console.log('check paired')
-  const paired = []
-  const c = pair.map(x => x.map(y => y.slice().sort()))
-  let frames = ['. ', '.. ', '... ']
-  let index = 0
-  c.forEach((f, indexs) => {
-    process.stdout.write(`\rchecking ${indexs} ${frames[index]}`)
-    index = (index + 1) % frames.length
-    // to fix to better way
-    f.forEach(t => {
-      if (!paired.some(x => x.join(',') == t.join(','))) {
-        paired.push(t)
-      }
-    })
-
-  })
-  console.log('finish paired')
-  console.clear()
-  return paired
+function createIdTeam(memberLength) {
+  const members = []
+  for (let i = 0; i < memberLength; i++) {
+    members.push(i)
+  }
+  return members
 }
-function mapTeam(members, pairedMember) {
-  console.log('create team template')
-  const teams = []
-  let indexParent = 0
-  let error = false
-  let hasAdded = []
-  const maxteam = Math.ceil(members.length / 2)
-  for (let i = 0; i < members.length - 1; i++) {
-    const compare = [pairedMember.filter(x => x[0] === members[0] && !teams.some(s => s[0] == x))[0]]
-    let deleteTeam = []
-    if (error) { indexParent++ }
-    let indexBody = indexParent
-    error = false
-    let indexChild = indexBody
-    let isReturn = false
-    for (let j = 0; j < maxteam - 1;) {
-      process.stdout.write(`\rcouple ${i} is procressing... ${((j / maxteam) * 100).toFixed(2)}%`)
-      const body = pairedMember.filter(x => !hasAdded.some(y => y == x)).filter(f => !f.some(v => compare.some(g => g.some(h => h === v))))
-
-      if (body.length === 0) {
-        compare.pop()
-        indexBody++
-        indexChild++
-        j--
-        isReturn = true
+function createTeamHeaderAndBody(members) {
+  const header = []
+  const body = []
+  let key = 0
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      if (i == 0) {
+        header.push({ index: key, data: [members[i], members[j]], indexStater: [] })
       }
       else {
-        let index = indexChild == indexBody ? indexBody : indexChild > indexBody ? !isReturn ? indexBody : indexChild : indexBody
-        if (index >= body.length) {
-          j = maxteam
-          error = true
+        body.push({ index: key, data: [members[i], members[j]] })
+      }
+      key++
+    }
+  }
+  const limitTeam =2
+  header.forEach(x => {
+    while (x.indexStater.length < (members.length / limitTeam) - 1) {
+      x.indexStater.push(0)
+    }
+  })
+  return {
+    header: header,
+    body: body
+  }
+}
+function createUniquePair({header,body},estimate){
+  const team = []
+  if(estimate == null){
+    estimate = header.length-1
+  }
+  for (let i = 0; i < header.length; i++) {
+    if(team.length == estimate){
+      return team.map(x => x.map(f => f.data))
+    }
+    const teamPair = []
+    teamPair.push(header[i])
+    const _filterPaired = body.filter(x => !x.data.some(s => header[i].data.some(f => f == s))).filter(f => !team.some(s => s.some(g => g.index == f.index)))
+    let hasError = false
+    for (let index = 0; index < header[i].indexStater.length; index++) {
+      let indexChild = header[i].indexStater[index]
+      const filterPaired = _filterPaired.filter(x => !x.data.some(g => teamPair.some(s => s.data.some(f => f == g))))
+      if (filterPaired.length <= indexChild) {
+        if (header[i] == teamPair.pop()) {
+          header[i - 1].indexStater[(members.length / limitTeam) - 2] += 1
+          header = header.map((x, indexP) => (indexP > i - 1) ? { indexStater: x.indexStater.map(x => 0), data: x.data, index: x.index } : x)
           i -= 2
-          deleteTeam = teams.pop()
+          hasError = true
+          break
         }
         else {
-          compare.push(body[index])
-          isReturn = false
-          indexBody = 0
-          j++
+          header[i].indexStater[index - 1]++
+          header[i].indexStater = header[i].indexStater.map((x, indexP) => indexP > index - 1 ? 0 : x)
+          index -= 2
         }
       }
+      else {
+        teamPair.push(filterPaired[indexChild])
+      }
     }
-    if (error) {
-      // hasAdded = hasAdded.filter(x => !deleteTeam.map(x=>x.join(',')).some(s=>s==x.join(',')))
-      hasAdded = []
-      teams.forEach(x=>{
-        hasAdded.push(...x)
-      })
+    if (!hasError) {
+      team.push(teamPair)
     }
     else {
-      hasAdded.push(...compare)
-      error = false
-      indexChild = 0
-      indexBody = 0
-      indexParent = 0
-      teams.push([...compare])
+      team.pop()
     }
   }
-  console.clear()
-  return teams
+  return team.map(x => x.map(f => f.data))
 }
-function main() {
+function createPairTemplate(memberLength,estimate = 4) {
+  const ids = createIdTeam(memberLength)
+  const template = createTeamHeaderAndBody(ids)
+  return createUniquePair(template,estimate)
+}
 
-  const startTime = new Date()
-  const members = []
-  const teamLock = []
-  for (let i = 0; i < 10; i++) {
-    members.push(`${i}`)
-  }
-  members.push(...teamLock)
-  // console.log(members)
-  const pair = createPlayerPair(members)
-  console.log(pair)
-  for (let index = 0; index < members.length; index++) {
-    while()
-  }
-  const team = mapTeam(members, pair)
-  // console.log(team)
-  console.log(Math.round((new Date() - startTime) / 1000) + " seconds in " + members.length + "s")
-  const result = []
-  // console.log(team);
-  for (let index = 0; index < team.length+1; index++) {
-    const data = team.map(x=>x.find(f=>f.some(s=>s==index)))
-    console.log(data);
-    // x.filter(p=>p.some(g=>g==index))
-  }
+async function main() {
+  const member = ["prem", "ten", 'non', 'not', 'day', 'bam', 'game', 'rin', 'dofe', 'mark', 'ood', 'may', 'rug', 'win', 'mawin', 'hen', 'us', 'fish', 'goom', 'gem']
+  const cateria = [{memberLength:100,estimate:5}]
+
+  cateria.forEach(x => {
+    const result = createPairTemplate(x.memberLength,x.estimate??null)
+    const ids = []
+    result.forEach(x=>{
+      x.forEach(y=>{
+        y.forEach(v=>{
+          if(ids.findIndex(fid=>fid==v)==-1){
+            ids.push(v)
+          }
+        })
+      })
+    })
+    const memberList = ids.map((x, index) => { return { name: member[index]??`nodata Name ${x}`, value: x } })
+    const a = result.map(x => x.map(g => g.map(c => memberList.find(f => f.value == c).name)))
+    a.forEach(x => {
+      console.log(x)
+    })
+  })
 }
+
 main()
+

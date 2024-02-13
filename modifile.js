@@ -20,7 +20,7 @@ function createTeamHeaderAndBody(members) {
       key++
     }
   }
-  const limitTeam =2
+  const limitTeam = 2
   header.forEach(x => {
     while (x.indexStater.length < (members.length / limitTeam) - 1) {
       x.indexStater.push(0)
@@ -31,13 +31,13 @@ function createTeamHeaderAndBody(members) {
     body: body
   }
 }
-function createUniquePair({header,body},estimate){
+function createUniquePair({ header, body }, estimate) {
   const team = []
-  if(estimate == null){
-    estimate = header.length-1
+  if (estimate == null || estimate > header.length - 1) {
+    estimate = header.length - 1
   }
   for (let i = 0; i < header.length; i++) {
-    if(team.length == estimate){
+    if (team.length == estimate) {
       return team.map(x => x.map(f => f.data))
     }
     const teamPair = []
@@ -74,35 +74,52 @@ function createUniquePair({header,body},estimate){
   }
   return team.map(x => x.map(f => f.data))
 }
-function createPairTemplate(memberLength,estimate = 4) {
+function createPairTemplate(memberLength, estimate = 4) {
   const ids = createIdTeam(memberLength)
   const template = createTeamHeaderAndBody(ids)
-  return createUniquePair(template,estimate)
+  return createUniquePair(template, estimate)
 }
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]
+  }
+  return array
+}
+async function test(member,limit,start,random,memberLock=[]) {
+  const cateria = { memberLength: member.length, limit: limit, start: start, random: random }
 
-async function main() {
-  const member = ["prem", "ten", 'non', 'not', 'day', 'bam', 'game', 'rin', 'dofe', 'mark', 'ood', 'may', 'rug', 'win', 'mawin', 'hen', 'us', 'fish', 'goom', 'gem']
-  const cateria = [{memberLength:100,estimate:5}]
-
-  cateria.forEach(x => {
-    const result = createPairTemplate(x.memberLength,x.estimate??null)
+ 
+    const result = createPairTemplate(cateria.memberLength, cateria.limit ?? null).filter((_, index) => index + 1 > cateria.start)
     const ids = []
-    result.forEach(x=>{
-      x.forEach(y=>{
-        y.forEach(v=>{
-          if(ids.findIndex(fid=>fid==v)==-1){
+    result.forEach(x => {
+      x.forEach(y => {
+        y.forEach(v => {
+          if (ids.findIndex(fid => fid == v) == -1) {
             ids.push(v)
           }
         })
       })
     })
-    const memberList = ids.map((x, index) => { return { name: member[index]??`nodata Name ${x}`, value: x } })
-    const a = result.map(x => x.map(g => g.map(c => memberList.find(f => f.value == c).name)))
-    a.forEach(x => {
-      console.log(x)
+    if (cateria.random) {
+      member = shuffleArray(member)
+    }
+    const memberList = ids.map((x, index) => { return { name: member[index] ?? `nodata Name ${x}`, value: x } })
+    const mapUserIdAndName = (result.map(x => x.map(g => g.map(c => memberList.find(f => f.value == c).name))) ?? [])
+    memberLock.forEach(teamLock => {
+      mapUserIdAndName.forEach(teamPaired => {
+        teamPaired.push(teamLock)
+        teamPaired = shuffleArray(teamPaired)
+        console.log(teamPaired)
+      })
     })
-  })
+  
 }
+function main(){
+  let member = ["prem", "ten", 'non', 'not', 'day', 'bam', 'game', 'rin', 'dofe', 'mark', 'ood', 'may', 'rug', 'win', 'mawin', 'hen', 'us', 'fish', 'goom', 'gem']
+  const memberLock = [["ggkk", "jjj"]]
 
+  test
+}
 main()
 

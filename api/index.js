@@ -3,6 +3,7 @@ const cors = require('cors')
 const { v4: uuidv4 } = require('uuid')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
+const {createTeamPair} = require('../modifile')
 mongoose.connect('mongodb+srv://nasakun13201:pan28060@badminton.bkjs5n4.mongodb.net/', {
   useNewUrlParser: true
 })
@@ -200,32 +201,12 @@ app.get('/team', async (req, res) => {
 })
 
 app.post('/team', async (req, res) => {
-  const members = req.body.members
-  try {
-    const oldteam = await SetDB.find({ roomId: req.body.roomId })
-    let teamPaired = members
-    if (oldteam != null) {
-      teamPaired = []
-      const oldTeams = oldteam.map(x => x.allTeam.map(m => m.member))
-
-      console.log(oldTeams);
-      const _member = JSON.parse(JSON.stringify(members))
-  const memberSort = _member.sort((a,b)=>{
-        const memberHasPairedA = findOldMember(a,oldTeams)
-        const memberHasPairedB = findOldMember(b,oldTeams)
-        const compare = memberHasPairedB.length - memberHasPairedA.length 
-        return compare >= 1 ? 1 :  compare < 0 ? -1: 0
-  })
-  teamPaired = randomTeam(memberSort,oldTeams)
-}
-    
-    req.body.teamLock.forEach(x => {
-      teamPaired.push(x)
-    })
-    const teamShuffered = shufferMember(teamPaired).map((x, index) => {
-      return { order: index + 1, member: x }
-    })
-
+  try{
+  const members = req.body.members??[]
+  const limit = req.body.limit??null
+  const start = req.body.start??0
+  const random = req.body.random ?? false
+  const teams = await createTeamPair(members, limit,start,random,req.body.teamLock)    
     if (req.body.setName.trim() === "") {
       const now = new Date()
       const options = {
@@ -240,19 +221,33 @@ app.post('/team', async (req, res) => {
       const formattedDate = now.toLocaleString('th-TH', options)
       req.body.setName = `วันที่ ${formattedDate}`
     }
-    const payload = {
-      courtNumber: req.body.courtNumber,
-      roomId: req.body.roomId,
-      winScore: req.body.winScore,
-      teamLimit: req.body.teamLimit,
-      winStreak: req.body.winStreak,
-      allTeam: teamShuffered,
-      setName: req.body.setName
-    }
-    const team = new SetDB(payload)
-    await team.save().then(e => {
-      res.json({ id: e._id })
+    const listId = []
+    teams.forEach(async (x,indexRoom)=>{
+      const dataMember = x.map((g,order)=>{return{
+        order:order,
+        member:g
+      }})
+      console.log(dataMember)
+      const payload = {
+        courtNumber: req.body.courtNumber,
+        roomId: req.body.roomId,
+        winScore: req.body.winScore,
+        teamLimit: req.body.teamLimit,
+        winStreak: req.body.winStreak,
+        allTeam: dataMember,
+        setName: req.body.setName+indexRoom
+      }
+      const team = new SetDB(payload)
+      await team.save().then(e => {
+        listId.push(e._id)
+      })
     })
+    if(listId.length>0){
+      res.json({ id: listId[0] })
+    }
+    else{
+    res.json(200)
+    }
   }
   catch (e) {
     console.log(e)

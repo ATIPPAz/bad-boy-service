@@ -119,7 +119,7 @@ function main(){
   let member = ["prem", "ten", 'non', 'not', 'day', 'bam', 'game', 'rin', 'dofe', 'mark', 'ood', 'may', 'rug', 'win', 'mawin', 'hen', 'us', 'fish', 'goom', 'gem']
   const memberLock = [["ggkk", "jjj"]]
 
-  test
+  test(member,2,0,true,memberLock)
 }
 main()
 

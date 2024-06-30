@@ -251,9 +251,10 @@ app.get("/deleteSet/:setId", async (req, res) => {
 app.get("/deleteRoom/:roomId", async (req, res) => {
   const roomId = req.params.roomId;
   try {
-    await MatchDB.deleteMany({ roomId: roomId });
-    await MatchSetDB.deleteMany({ roomId: roomId });
-    res.json(200);
+    Promise.all([
+      MatchSetDB.deleteMany({ roomId: roomId }),
+      MatchDB.deleteMany({ roomId: roomId }),
+    ]).then((x) => res.json({ status: 200, data: x }));
   } catch (e) {
     console.log(e);
     res.json(500);

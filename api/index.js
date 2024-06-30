@@ -249,23 +249,17 @@ app.get("/deleteSet/:setId", async (req, res) => {
   }
 });
 app.get("/deleteRoom/:roomId", async (req, res) => {
+  const roomId = req.params.roomId;
   try {
-    await MatchDB.deleteMany({ roomId: req.params.roomId });
+    await MatchDB.deleteMany({ roomId: roomId });
+    await MatchSetDB.deleteMany({ roomId: roomId });
     res.json(200);
   } catch (e) {
     console.log(e);
     res.json(500);
   }
 });
-app.get("/deleteSet/:setId", async (req, res) => {
-  try {
-    await MatchSetDB.deleteMany({ roomId: req.params.setId });
-    res.json(200);
-  } catch (e) {
-    console.log(e);
-    res.json(500);
-  }
-});
+
 app.get("/room/:roomId", async (req, res) => {
   try {
     const roomData = await RoomDB.findOne({ _id: req.params.roomId });

@@ -6,18 +6,7 @@ mongoose.connect(
   }
 );
 const Schema = mongoose.Schema;
-const setSchma = new Schema(
-  {
-    roomId: String,
-    setName: String,
-    allTeam: [{ member: [String], order: Number }],
-    courtNumber: Number,
-    teamLimit: Number,
-    winScore: Number,
-    winStreak: Number,
-  },
-  { versionKey: false }
-);
+
 const teamShema = new Schema(
   { member: [String], order: Number },
   { _id: false }
